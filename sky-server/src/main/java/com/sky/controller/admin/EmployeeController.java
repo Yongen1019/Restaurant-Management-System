@@ -83,6 +83,11 @@ public class EmployeeController {
         return Result.success();
     }
 
+    /**
+     * Employee Search Pagination
+     * @param employeePageQueryDTO
+     * @return
+     */
     @GetMapping("/page")
     @ApiOperation("Employee Search Pagination")
     public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
@@ -93,4 +98,18 @@ public class EmployeeController {
         return Result.success(pageResult);
     }
 
+    /**
+     * Enable or Disable Employee Account
+     * @param status
+     * @param id
+     * @return
+     */
+    // /status/1?id=2
+    @PostMapping("/status/{status}")
+    @ApiOperation("Enable or Disable Employee Account")
+    public Result enableOrDisableAccount(@PathVariable Integer status, Long id) {
+        log.info("enable or disable employee account: {}, {}", status, id);
+        employeeService.enableOrDisableAccount(status, id);
+        return Result.success();
+    }
 }
