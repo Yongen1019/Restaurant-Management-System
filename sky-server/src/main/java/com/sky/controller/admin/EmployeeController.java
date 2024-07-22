@@ -112,4 +112,30 @@ public class EmployeeController {
         employeeService.enableOrDisableAccount(status, id);
         return Result.success();
     }
+
+    /**
+     * Get Employee Data By Id
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("Get Employee By Id")
+    public Result<Employee> getById(@PathVariable Long id) {
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    /**
+     * Update Employee Data
+     * @param employeeDTO
+     * @return
+     */
+    @PutMapping
+    @ApiOperation("Update Employee Data")
+    public Result update(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("update employee data: {}", employeeDTO);
+        employeeService.update(employeeDTO);
+
+        return Result.success();
+    }
 }

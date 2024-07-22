@@ -67,7 +67,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     /**
-     * 增加员工
+     * Insert New Employee
      *
      * @param employeeDTO
      * @return
@@ -95,7 +95,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     /**
-     * 增加员工
+     * Employee Search Pagination
      *
      * @param employeePageQueryDTO
      * @return
@@ -127,6 +127,34 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // second method
         Employee employee = Employee.builder().status(status).id(id).build();
+
+        employeeMapper.update(employee);
+    }
+
+    /**
+     * Get Employee Data By Id
+     * @param id
+     * @return
+     */
+    @Override
+    public Employee getById(Long id) {
+        Employee employee = employeeMapper.getById(id);
+        employee.setPassword("****");
+        return employee;
+    }
+
+    /**
+     * Update Employee Data
+     * @param employeeDTO
+     */
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        // copy employeeDTO properties to employee
+        BeanUtils.copyProperties(employeeDTO, employee);
+
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId()); // base context having a thread local that storing the current logged user id
 
         employeeMapper.update(employee);
     }

@@ -19,7 +19,7 @@ public interface EmployeeMapper {
     Employee getByUsername(String username);
 
     /**
-     * 插入员工数据
+     * Insert Employee
      * @param employee
      * @return
      */
@@ -28,11 +28,23 @@ public interface EmployeeMapper {
     void insert(Employee employee);
 
     /**
-     * 分页查询
+     * Update Employee
      * @param employeePageQueryDTO
      * @return
      */
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 
+    /**
+     * Update Employee Data
+     * @param employee
+     */
     void update(Employee employee);
+
+    /**
+     * Get Employee Data By Id
+     * @param id
+     * @return
+     */
+    @Select("select * from employee where id = #{id}")
+    Employee getById(Long id);
 }
