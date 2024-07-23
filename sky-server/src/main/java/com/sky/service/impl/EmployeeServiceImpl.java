@@ -84,12 +84,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         // default password: 123456
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
 
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
+        // replaced these setter by AOP annotation
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
         // use ThreadLocal (something like session but it is variable in a thread) to get current logged user
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//        employee.setCreateUser(BaseContext.getCurrentId());
+//        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
     }
@@ -153,8 +153,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         // copy employeeDTO properties to employee
         BeanUtils.copyProperties(employeeDTO, employee);
 
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId()); // base context having a thread local that storing the current logged user id
+        // replaced these setter by AOP annotation
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateUser(BaseContext.getCurrentId()); // base context having a thread local that storing the current logged user id
 
         employeeMapper.update(employee);
     }
