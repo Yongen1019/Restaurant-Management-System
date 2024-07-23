@@ -18,7 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/category")
-@Api(tags = "分类相关接口")
+@Api(tags = "Category Controller")
 @Slf4j
 public class CategoryController {
 
