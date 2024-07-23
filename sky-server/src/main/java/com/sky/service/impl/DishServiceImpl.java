@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -88,5 +89,38 @@ public class DishServiceImpl implements DishService {
         dishMapper.deleteByIds(ids);
         // delete dish flavor data
         dishFlavorMapper.deleteByDishIds(ids);
+    }
+
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        Dish dish = dishMapper.getById(id);
+        List<DishFlavor> dishFlavor = dishFlavorMapper.getByDishId(id);
+
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO); // all properties will copy from dish to dishVO except categoryName since it is not in dish, but this is not important since we only need categoryName for dish search pagination purpose
+        dishVO.setFlavors(dishFlavor);
+
+        return dishVO;
+    }
+
+    @Transactional
+    @Override
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        // update dish
+        dishMapper.update(dish);
+
+        // delete all flavor records by dish id
+        dishFlavorMapper.deleteByDishIds(Collections.singletonList(dishDTO.getId()));
+
+        // insert multiple records into flavor table
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors != null && !flavors.isEmpty()) {
+            flavors.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dishDTO.getId());
+            });
+            dishFlavorMapper.insertBatch(flavors);
+        }
     }
 }
