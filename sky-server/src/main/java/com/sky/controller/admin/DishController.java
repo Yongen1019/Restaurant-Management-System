@@ -80,4 +80,12 @@ public class DishController {
 
         return Result.success(dishList);
     }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("Enable or Disable Dish")
+    public Result startOrStop(@PathVariable Integer status, Long id) {
+        dishService.startOrStop(status, id);
+
+        return Result.success();
+    }
 }

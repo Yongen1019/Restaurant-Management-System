@@ -8,10 +8,13 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.Setmeal;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -33,6 +36,8 @@ public class DishServiceImpl implements DishService {
     private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private SetmealMapper setmealMapper;
 
     /**
      * Add New Dish With Flavor
@@ -131,5 +136,24 @@ public class DishServiceImpl implements DishService {
         List<Dish> dishList = dishMapper.getByCategoryId(dish);
 
         return dishList;
+    }
+
+    @Transactional
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        // check if enabled setmeal dishes include going to be disabled dish, if included throw error
+        if (status == StatusConstant.DISABLE) {
+            List<Setmeal> setmealList = setmealMapper.getByDishId(id);
+            if (setmealList != null && !setmealList.isEmpty()) {
+                setmealList.forEach(setmeal -> {
+                    if (StatusConstant.ENABLE == setmeal.getStatus()) {
+                        Setmeal setmealUpdate = Setmeal.builder().id(setmeal.getId()).status(status).build();
+                        setmealMapper.update(setmealUpdate);
+                    }
+                });
+            }
+        }
+        Dish dish = Dish.builder().id(id).status(status).build();
+        dishMapper.update(dish);
     }
 }
