@@ -21,9 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * 分类业务层
- */
 @Service
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
@@ -36,19 +33,18 @@ public class CategoryServiceImpl implements CategoryService {
     private SetmealMapper setmealMapper;
 
     /**
-     * 新增分类
+     * Insert Category
      * @param categoryDTO
      */
+    @Override
     public void save(CategoryDTO categoryDTO) {
         Category category = new Category();
-        //属性拷贝
         BeanUtils.copyProperties(categoryDTO, category);
 
-        //分类状态默认为禁用状态0
+        // category status default disable
         category.setStatus(StatusConstant.DISABLE);
 
         // replaced these setter by AOP annotation
-        //设置创建时间、修改时间、创建人、修改人
 //        category.setCreateTime(LocalDateTime.now());
 //        category.setUpdateTime(LocalDateTime.now());
 //        category.setCreateUser(BaseContext.getCurrentId());
@@ -58,10 +54,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 分页查询
+     * Category Search Pagination
      * @param categoryPageQueryDTO
      * @return
      */
+    @Override
     public PageResult pageQuery(CategoryPageQueryDTO categoryPageQueryDTO) {
         PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
         //下一条sql进行分页，自动加入limit关键字分页
@@ -70,38 +67,39 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 根据id删除分类
+     * Delete Category By Id
      * @param id
      */
+    @Override
     public void deleteById(Long id) {
-        //查询当前分类是否关联了菜品，如果关联了就抛出业务异常
+        // check if category include dish, if yes throw exception
         Integer count = dishMapper.countByCategoryId(id);
         if(count > 0){
-            //当前分类下有菜品，不能删除
+            // category include dish
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
         }
 
-        //查询当前分类是否关联了套餐，如果关联了就抛出业务异常
+        // check if category related to setmeal, if yes throw exception
         count = setmealMapper.countByCategoryId(id);
         if(count > 0){
-            //当前分类下有菜品，不能删除
+            // category related to setmeal, cannot be deleted
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
         }
 
-        //删除分类数据
+        // Delete Category Data
         categoryMapper.deleteById(id);
     }
 
     /**
-     * 修改分类
+     * Update Category
      * @param categoryDTO
      */
+    @Override
     public void update(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
 
         // replaced these setter by AOP annotation
-        //设置修改时间、修改人
 //        category.setUpdateTime(LocalDateTime.now());
 //        category.setUpdateUser(BaseContext.getCurrentId());
 
@@ -109,10 +107,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 启用、禁用分类
+     * Start or Stop Category
      * @param status
      * @param id
      */
+    @Override
     public void startOrStop(Integer status, Long id) {
         Category category = Category.builder()
                 .id(id)
@@ -125,10 +124,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 根据类型查询分类
+     * Get Category By Type
      * @param type
      * @return
      */
+    @Override
     public List<Category> list(Integer type) {
         return categoryMapper.list(type);
     }
