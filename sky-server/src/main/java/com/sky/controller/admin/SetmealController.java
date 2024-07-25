@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class SetmealController {
 
     @PostMapping
     @ApiOperation("Add New Setmeal")
+    @CacheEvict(cacheNames = "setmealCache", key = "#setmealDTO.categoryId") // remove key in redis : setmealCache::{categoryId}
     public Result save(@RequestBody SetmealDTO setmealDTO) {
         log.info("add new setmeal: {}", setmealDTO);
         setmealService.saveWithDishes(setmealDTO);
@@ -42,6 +44,7 @@ public class SetmealController {
 
     @DeleteMapping
     @ApiOperation("Delete Multiple Setmeal")
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true) // clear all value in setmealCache
     public Result delete(@RequestParam List<Long> ids) {
         log.info("delete multiple setmeal: {}", ids);
         setmealService.deleteBatch(ids);
@@ -60,6 +63,7 @@ public class SetmealController {
 
     @PutMapping
     @ApiOperation("Update Setmeal")
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true) // clear all value in setmealCache
     public Result update(@RequestBody SetmealDTO setmealDTO) {
         setmealService.update(setmealDTO);
 
@@ -68,6 +72,7 @@ public class SetmealController {
 
     @PostMapping("/status/{status}")
     @ApiOperation("Enable or Disable Setmeal")
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true) // clear all value in setmealCache
     public Result startOrStop(@PathVariable Integer status, Long id) {
         setmealService.startOrStop(status, id);
 

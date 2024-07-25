@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -93,6 +94,7 @@ public class DishController {
 
     @PostMapping("/status/{status}")
     @ApiOperation("Enable or Disable Dish")
+    @CacheEvict(cacheNames = "setmealCache", allEntries = true) // clear all value in setmealCache
     public Result startOrStop(@PathVariable Integer status, Long id) {
         dishService.startOrStop(status, id);
         cleanRedisCache("dish_*");
