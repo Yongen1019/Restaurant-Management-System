@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,8 @@ import java.util.List;
 public class DishController {
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * Get Category By Category Id
@@ -31,11 +34,21 @@ public class DishController {
     @GetMapping("/list")
     @ApiOperation("Get Category By Category Id")
     public Result<List<DishVO>> list(Long categoryId) {
+        // check if redis consists of this category dish data
+        String key = "dish_" + categoryId;
+        List<DishVO> list = (List<DishVO>) redisTemplate.opsForValue().get(key);
+        // if exists, direct return redis data
+        if (list != null && !list.isEmpty()) {
+            return Result.success(list);
+        }
+
+        // if not exists, access database and store database data into redis
         Dish dish = new Dish();
         dish.setCategoryId(categoryId);
         dish.setStatus(StatusConstant.ENABLE); // get dish which status is enable
 
-        List<DishVO> list = dishService.listWithFlavor(dish);
+        list = dishService.listWithFlavor(dish);
+        redisTemplate.opsForValue().set(key, list);
 
         return Result.success(list);
     }
