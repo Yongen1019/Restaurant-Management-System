@@ -36,4 +36,20 @@ public class ShoppingCartController {
 
         return Result.success(shoppingCartList);
     }
+
+    @DeleteMapping("/clean")
+    @ApiOperation("Clear Shopping Cart")
+    public Result clean() {
+        shoppingCartService.cleanShoppingCart();
+        return Result.success();
+    }
+
+    @PostMapping("/sub")
+    @ApiOperation("Delete Product from Shopping Cart")
+    public Result sub(@RequestBody ShoppingCartDTO shoppingCartDTO){
+        log.info("delete product from shopping cart: {}", shoppingCartDTO);
+        shoppingCartService.subShoppingCart(shoppingCartDTO);
+
+        return Result.success();
+    }
 }
