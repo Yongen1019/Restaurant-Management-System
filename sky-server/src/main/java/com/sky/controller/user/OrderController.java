@@ -1,11 +1,14 @@
 package com.sky.controller.user;
 
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -36,5 +39,41 @@ public class OrderController {
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
         return Result.success(orderPaymentVO);
+    }
+
+    @GetMapping("/historyOrders")
+    @ApiOperation("Get Order History")
+    public Result<PageResult> page(OrdersPageQueryDTO ordersPageQueryDTO) {
+        log.info("get order history: {}", ordersPageQueryDTO);
+        PageResult pageResult = orderService.pageQueryForUser(ordersPageQueryDTO);
+
+        return Result.success(pageResult);
+    }
+
+    @GetMapping("/orderDetail/{id}")
+    @ApiOperation("Get Specific Order and Order Details")
+    public Result<OrderVO> details(@PathVariable Long id) {
+        log.info("get specific order and order details: {}", id);
+        OrderVO orderVO = orderService.details(id);
+
+        return Result.success(orderVO);
+    }
+
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("Cancel Order")
+    public Result cancel(@PathVariable Long id) {
+        log.info("cancel order: {}", id);
+        orderService.userCancelById(id);
+
+        return Result.success();
+    }
+
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("Repeat Order")
+    public Result repetition(@PathVariable Long id) {
+        log.info("repeat order: {}", id);
+        orderService.repetition(id);
+
+        return Result.success();
     }
 }
