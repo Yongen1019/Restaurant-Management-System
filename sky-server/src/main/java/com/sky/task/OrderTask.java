@@ -22,7 +22,7 @@ public class OrderTask {
     /**
      * update time out pending payment order (after 15 minutes) status to cancelled every minute
      */
-    @Scheduled(cron = "0 * * * * ? *") // every minute
+    @Scheduled(cron = "0 * * * * ? ") // every minute
     public void processTimeoutOrder() {
         log.info("update time out pending payment order status: {}", LocalDateTime.now());
         LocalDateTime orderTime = LocalDateTime.now().minusMinutes(15);
@@ -43,7 +43,7 @@ public class OrderTask {
     /**
      * update out of delivery order status to completed every day when shop closed
      */
-    @Scheduled(cron = "0 0 1 * * ? *") // every day 1 am
+    @Scheduled(cron = "0 0 1 * * ? ") // every day 1 am
     public void processDeliveredOrder() {
         log.info("update out of delivery order status to completed: {}", LocalDateTime.now());
         // get all orders in status out of delivery where order time is at least one hour before
