@@ -428,6 +428,28 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * Customer Remind Order Via Websocket
+     * @param orderId
+     */
+    @Override
+    public void reminder(Long id) {
+        Orders orders = orderMapper.getById(id);
+
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // push customer remind order messages to client browser (frontend admin management system) via websocket
+        Map map = new HashMap<>();
+        map.put("type", 2); // 1. New Order Reminder, 2. Customer Remind Order
+        map.put("orderId", id);
+        map.put("content", "Order ID: " + orders.getNumber());
+
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+    }
+
+    /**
      * get order and its details dishes string
      * @param page
      * @return
