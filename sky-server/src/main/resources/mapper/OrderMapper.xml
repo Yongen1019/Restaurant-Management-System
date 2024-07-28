@@ -2,6 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.OrderMapper">
 
+    <sql id="selectWhereBeginEndStatus">
+        <where>
+            <if test="begin != null">
+                order_time &gt; #{begin}
+            </if>
+            <if test="end != null">
+                and order_time &lt; #{end}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </sql>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into orders (number, status, user_id, address_book_id, order_time, checkout_time, pay_method, pay_status,
                             amount, remark, phone, address, consignee, estimated_delivery_time, delivery_status,
@@ -69,16 +83,11 @@
 
     <select id="sumByMap" resultType="java.lang.Double">
         select sum(amount) from orders
-        <where>
-            <if test="begin != null">
-                order_time &gt; #{begin}
-            </if>
-            <if test="end != null">
-                and order_time &lt; #{end}
-            </if>
-            <if test="status != null">
-                and status = #{status}
-            </if>
-        </where>
+        <include refid="selectWhereBeginEndStatus"></include>
+    </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from orders
+        <include refid="selectWhereBeginEndStatus"></include>
     </select>
 </mapper>

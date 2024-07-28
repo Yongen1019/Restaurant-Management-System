@@ -4,6 +4,7 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -105,5 +106,67 @@ public class ReportServiceImpl implements ReportService {
                 .totalUserList(StringUtils.join(totalUserList, ","))
                 .newUserList(StringUtils.join(newUserList, ","))
                 .build();
+    }
+
+    /**
+     * Get Order Statistics
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
+        // store all date between begin and end into list
+        List<LocalDate> dateList = new ArrayList<>();
+        List<Integer> totalOrderList = new ArrayList<>();
+        List<Integer> validOrderList = new ArrayList<>();
+        while(!begin.isAfter(end)) {
+            dateList.add(begin);
+
+            // get total order and completed order amount by date
+            LocalDateTime beginDateTime = LocalDateTime.of(begin, LocalTime.MIN);
+            LocalDateTime endDateTime = LocalDateTime.of(begin, LocalTime.MAX);
+
+            // get total order (all orders included cancelled)
+            Integer totalOrder = getOrderCount(beginDateTime, endDateTime, null);
+            totalOrderList.add(totalOrder);
+
+            // get completed (all orders in status completed)
+            Integer validOrder = getOrderCount(beginDateTime, endDateTime, Orders.COMPLETED);
+            validOrderList.add(validOrder);
+
+            // add begin by 1 day
+            begin = begin.plusDays(1);
+        }
+
+        // calculate sum of totalOrderList using stream
+        Integer totalOrderCount = totalOrderList.stream().reduce(Integer::sum).get();
+
+        // calculate sum of completedOrderList using stream
+        Integer validOrderCount = validOrderList.stream().reduce(Integer::sum).get();
+
+        // calculate orders completion rate
+        Double orderCompletionRate = 0.0;
+        if (totalOrderCount != 0) {
+            orderCompletionRate = validOrderCount.doubleValue() / totalOrderCount;
+        }
+
+        return OrderReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .orderCountList(StringUtils.join(totalOrderList, ","))
+                .validOrderCountList(StringUtils.join(validOrderList, ","))
+                .totalOrderCount(totalOrderCount)
+                .validOrderCount(validOrderCount)
+                .orderCompletionRate(orderCompletionRate)
+                .build();
+    }
+
+    private Integer getOrderCount(LocalDateTime begin, LocalDateTime end, Integer status) {
+        Map map = new HashMap<>();
+        map.put("begin", begin);
+        map.put("end", end);
+        map.put("status", status);
+
+        return orderMapper.countByMap(map);
     }
 }
