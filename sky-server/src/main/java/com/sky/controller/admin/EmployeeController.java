@@ -4,6 +4,7 @@ import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
@@ -20,9 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 员工管理
- */
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
@@ -35,7 +33,7 @@ public class EmployeeController {
     private JwtProperties jwtProperties;
 
     /**
-     * 登录
+     * Login
      *
      * @param employeeLoginDTO
      * @return
@@ -47,7 +45,7 @@ public class EmployeeController {
 
         Employee employee = employeeService.login(employeeLoginDTO);
 
-        //登录成功后，生成jwt令牌
+        // Generate Jwt Token after Login
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
         String token = JwtUtil.createJWT(
@@ -66,7 +64,7 @@ public class EmployeeController {
     }
 
     /**
-     * 退出
+     * Logout
      *
      * @return
      */
@@ -136,6 +134,15 @@ public class EmployeeController {
     public Result update(@RequestBody EmployeeDTO employeeDTO) {
         log.info("update employee data: {}", employeeDTO);
         employeeService.update(employeeDTO);
+
+        return Result.success();
+    }
+
+    @PutMapping("/editPassword")
+    @ApiOperation("Edit Password")
+    public Result editPassword(@RequestBody PasswordEditDTO passwordEditDTO) {
+        log.info("edit employee password: {}", passwordEditDTO);
+        employeeService.editPassword(passwordEditDTO);
 
         return Result.success();
     }
